@@ -4,18 +4,15 @@ import bcrypt
 import os
 import json
 
-firebase_creds_json = os.getenv("FIREBASE_CREDENTIALS")
+# Ambil JSON dari environment variable
+firebase_creds_json = os.getenv('FIREBASE_CREDENTIALS')
 
-if not firebase_creds_json:
-    raise ValueError("FIREBASE_CREDENTIALS not set in environment variables")
-
-# Konversi JSON string ke dictionary
-firebase_creds_dict = json.loads(firebase_creds_json)
-
-# Inisialisasi aplikasi Firebase
-# cred = credentials.Certificate('./credentials.json')
-cred = credentials.Certificate('firebase_creds_dict')
-firebase_admin.initialize_app(cred)
+if firebase_creds_json:
+    firebase_creds_dict = json.loads(firebase_creds_json)  # Konversi JSON string menjadi dictionary
+    cred = credentials.Certificate(firebase_creds_dict)  # Gunakan dictionary langsung
+    firebase_admin.initialize_app(cred)
+else:
+    raise ValueError("FIREBASE_CREDENTIALS environment variable is not set")
 
 # Mendapatkan referensi ke Firestore
 db = firestore.client()
