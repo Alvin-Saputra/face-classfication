@@ -6,3 +6,5 @@ archive (1)/
 
 # Ignore virtual environment
 env/
+
+credentials.json

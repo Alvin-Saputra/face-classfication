@@ -1,4 +1,4 @@
-from flask import Flask, request, send_file, jsonify
+from flask import Flask, request, send_file, jsonify, make_response
 from PIL import Image
 import cv2
 import numpy as np
@@ -6,6 +6,10 @@ from skimage.feature import graycomatrix, graycoprops
 import pandas as pd
 from io import BytesIO
 import joblib
+import bcrypt
+
+
+from firebase import check_user, authenticate_user, change_password
 
 app = Flask(__name__)
 
@@ -122,33 +126,58 @@ def classify():
                 'prediction': prediction.tolist()[0],
             })
         
-        # features_list = []
-        
-        # # Process each detected face
-        # for face in faces:
-        #     # Resize face to 128x128 for consistency
-        #     resized_face = cv2.resize(face, (128, 128))
-            
-        #     # Extract GLCM features
-        #     glcm_features = extract_glcm_features(resized_face)
-        #     features_list.append(glcm_features)
-        
-        # # Create DataFrame with features
-        # columns = [f'feature_{i}' for i in range(len(features_list[0]))]
-        # df = pd.DataFrame(features_list, columns=columns)
-        
-        # # Here you would add your model prediction
-        # # prediction = model.predict(df)
-        
-        # # For now, just return the features as JSON
-        # return jsonify({
-        #     'status': 'success',
-        #     'features': df.to_dict(orient='records'),
-        #     'num_faces_detected': len(faces)
-        # })
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+
+@app.route('/check_username', methods=['POST'])
+def check_username():
+        # Get username and password from request
+        username = request.form['username']
+        return jsonify({"status": check_user(username)}), 200
+
+
+@app.route('/login', methods=['POST'])
+def login():
+    try:
+        user_id = request.form['user_id']
+        password = request.form['password'] 
+
+        if not user_id or not password:
+            return jsonify({"error": "user_id and password are required"}), 400
+
+        auth_result = authenticate_user(user_id, password)
+
+        if auth_result['status'] == 'error':
+            return make_response(auth_result['message'], 403, {'WWW-Authenticate': 'Basic realm: "Authentication Failed "'})
+        
+        return jsonify(auth_result), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500 
+    
+
+@app.route('/update-password', methods=['POST'])
+def update_password():
+    try:
+        user_id = request.form['user_id']
+        current_password = request.form['current_password'] 
+        new_password = request.form['new_password'] 
+
+        if not user_id or not current_password or not new_password:
+            return jsonify({"error": "user_id and password are required"}), 400
+
+        update_password_result = change_password(current_password, new_password, user_id)
+
+        if update_password_result['status'] == 'error':
+            return jsonify({"error": update_password_result['message']}), 403
+        
+
+        return jsonify(update_password_result), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500 
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
