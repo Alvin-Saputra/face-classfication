@@ -145,12 +145,12 @@ def login():
         password = request.form['password'] 
 
         if not user_id or not password:
-            return jsonify({"error": "user_id and password are required"}), 400
+            return jsonify({'status': 'error', 'message': 'user_id and password are required'}), 400
 
         auth_result = authenticate_user(user_id, password)
 
         if auth_result['status'] == 'error':
-            return jsonify(auth_result), 403
+            return jsonify(auth_result), 400
         
         return jsonify(auth_result), 200
 
