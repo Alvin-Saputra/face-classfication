@@ -42,12 +42,13 @@ def authenticate_user(user_id, password):
         # Ambil data pengguna
         user_doc = user_ref[0].to_dict()
         stored_password = user_doc.get('password')
+        username = user_doc.get('username')
 
         # Verifikasi password
         if not bcrypt.checkpw(password.encode('utf-8'), stored_password.encode('utf-8')):
             return {'status': 'error', 'message': 'Invalid credentials'}
         
-        return {'status': 'success', 'message': 'Login successful'}
+        return {'status': 'success', 'message': 'Login successful', 'username': username}
 
     except Exception as e:
         return {'status': 'error', 'message': str(e)}
