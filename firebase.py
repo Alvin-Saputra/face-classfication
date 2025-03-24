@@ -43,12 +43,13 @@ def authenticate_user(user_id, password):
         user_doc = user_ref[0].to_dict()
         stored_password = user_doc.get('password')
         username = user_doc.get('username')
+        user_id = user_doc.get('user_id')
 
         # Verifikasi password
         if not bcrypt.checkpw(password.encode('utf-8'), stored_password.encode('utf-8')):
             return {'status': 'error', 'message': 'Invalid credentials'}
         
-        return {'status': 'success', 'message': 'Login successful', 'username': username}
+        return {'status': 'success', 'message': 'Login successful', 'username': username, 'user_id': user_id}
 
     except Exception as e:
         return {'status': 'error', 'message': str(e)}
