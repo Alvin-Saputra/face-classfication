@@ -9,7 +9,7 @@ import joblib
 import bcrypt
 
 
-from firebase import check_user, authenticate_user, change_password
+from firebase import check_user, authenticate_user, change_password, get_username_by_user_id, write_attendance
 
 app = Flask(__name__)
 
@@ -91,23 +91,25 @@ def predict(dataframe):
     df = dataframe
 
     model, refs_cols, target = joblib.load("GLCM_SVM_Model.pkl")
+    label_encoder = joblib.load("label_encoder.pkl")
 
     X_new = df[refs_cols]
 
     prediction = model.predict(X_new)
+    converted_prediction = label_encoder.inverse_transform(prediction)
     
     # Melakukan prediksi
-    print("Prediction:", prediction)
+    print("Prediction:", converted_prediction)
     
     # Optionally, return the prediction
-    return prediction
+    return converted_prediction
 
 @app.route('/process-image', methods=['POST'])
 def classify():
     try:
         # Get image from request
         img_file = request.files['image']
-        
+        user_id = request.form['user_id']
         # Convert to OpenCV format
         img = cv2.imdecode(np.frombuffer(img_file.read(), np.uint8), cv2.IMREAD_COLOR)
 
@@ -121,11 +123,25 @@ def classify():
         
         else:
             prediction = predict(dataframe)
-            return jsonify({
-                'status': 'success',
-                'prediction': prediction.tolist()[0],
-            })
-        
+
+            if(prediction.tolist()[0] == get_username_by_user_id(user_id)):
+                attendance = write_attendance(user_id)
+                if attendance['status'] == 'success':
+                    return jsonify({
+                        'status': 'success',
+                        'prediction': prediction.tolist()[0],
+                        'attendance': attendance['message']
+                    }), 200
+                else:
+                    return jsonify({
+                        'status': 'error',
+                        'message': 'Attendance could not be recorded'
+                    }), 400
+            else:
+                return jsonify({
+                    'status': 'error',
+                    'message': 'Face does not match with user'
+                }), 400
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500

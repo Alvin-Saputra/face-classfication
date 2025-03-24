@@ -29,9 +29,12 @@ def check_user(username):
             return 'Failed'
         
 
-def check_user(username):
-    user_ref = db.collection("users").where("username", "==", username).get()
-    return 'Success' if user_ref else 'Failed'
+def get_username_by_user_id(user_id):
+    user_ref = db.collection("users").where("user_id", "==", user_id).get()
+    user_doc = user_ref[0].to_dict()
+    username = user_doc.get('username')
+
+    return username
 
 def authenticate_user(user_id, password):
     try:
@@ -83,6 +86,20 @@ def change_password(current_password, new_password, user_id):
         return {'status': 'success', 'message': 'Password changed successfully'}
     
     
+
+    except Exception as e:
+        return {'status': 'error', 'message': str(e)}
+    
+def write_attendance(user_id):
+    try:
+        # Ambil data pengguna
+        user_ref = db.collection("attendance")
+        user_ref.add({
+            'user_id': user_id,
+            'created_at': firestore.SERVER_TIMESTAMP
+        })
+
+        return {'status': 'success', 'message': 'Attendance marked successfully'}
 
     except Exception as e:
         return {'status': 'error', 'message': str(e)}
