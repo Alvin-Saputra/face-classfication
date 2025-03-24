@@ -150,7 +150,7 @@ def login():
         auth_result = authenticate_user(user_id, password)
 
         if auth_result['status'] == 'error':
-            return make_response(auth_result['message'], 403, {'WWW-Authenticate': 'Basic realm: "Authentication Failed "'})
+            return jsonify(auth_result), 403
         
         return jsonify(auth_result), 200
 

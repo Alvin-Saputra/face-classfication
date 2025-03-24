@@ -14,6 +14,10 @@ if firebase_creds_json:
 else:
     raise ValueError("FIREBASE_CREDENTIALS environment variable is not set")
 
+
+# cred = credentials.Certificate('./credentials.json')
+# firebase_admin.initialize_app(cred)
+
 # Mendapatkan referensi ke Firestore
 db = firestore.client()
 
