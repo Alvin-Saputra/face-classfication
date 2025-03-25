@@ -114,7 +114,7 @@ def get_attendance_by_id(user_id):
         for doc in user_ref:
             attendance_list.append(doc.to_dict())
 
-        return {'status': 'success', 'message': attendance_list}
+        return {'status': 'success', 'message': 'Successfully Fetch Attendance History', 'message': attendance_list}
 
     except Exception as e:
         return {'status': 'error', 'message': str(e)}
