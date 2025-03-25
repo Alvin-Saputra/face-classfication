@@ -96,7 +96,8 @@ def write_attendance(user_id):
         user_ref = db.collection("attendance")
         user_ref.add({
             'user_id': user_id,
-            'created_at': firestore.SERVER_TIMESTAMP
+            'created_at': firestore.SERVER_TIMESTAMP,
+            'status': 'present'
         })
 
         return {'status': 'success', 'message': 'Attendance marked successfully'}
