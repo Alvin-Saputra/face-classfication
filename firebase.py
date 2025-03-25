@@ -103,3 +103,17 @@ def write_attendance(user_id):
 
     except Exception as e:
         return {'status': 'error', 'message': str(e)}
+    
+
+def get_attendance_by_id(user_id):
+    try:
+        # Ambil data pengguna
+        user_ref = db.collection("attendance").where("user_id", "==", user_id).get()
+        attendance_list = []
+        for doc in user_ref:
+            attendance_list.append(doc.to_dict())
+
+        return {'status': 'success', 'message': attendance_list}
+
+    except Exception as e:
+        return {'status': 'error', 'message': str(e)}

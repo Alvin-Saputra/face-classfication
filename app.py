@@ -9,7 +9,7 @@ import joblib
 import bcrypt
 
 
-from firebase import check_user, authenticate_user, change_password, get_username_by_user_id, write_attendance
+from firebase import check_user, authenticate_user, change_password, get_username_by_user_id, write_attendance, get_attendance_by_id
 
 app = Flask(__name__)
 
@@ -110,6 +110,9 @@ def classify():
         # Get image from request
         img_file = request.files['image']
         user_id = request.form['user_id']
+
+        if not user_id or not img_file:
+            return jsonify({"error": "image and user_id are required"}), 400
         # Convert to OpenCV format
         img = cv2.imdecode(np.frombuffer(img_file.read(), np.uint8), cv2.IMREAD_COLOR)
 
@@ -191,6 +194,22 @@ def update_password():
         
 
         return jsonify(update_password_result), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500 
+    
+
+@app.route('/get-attendance-list', methods=['POST'])
+def get_attendance():
+    try:
+        user_id = request.form['user_id']
+      
+        if not user_id :
+            return jsonify({"error": "user_id are required"}), 400
+
+        attendance_list = get_attendance_by_id(user_id)
+
+        return jsonify(attendance_list), 200
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500 
