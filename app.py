@@ -7,9 +7,11 @@ import pandas as pd
 from io import BytesIO
 import joblib
 import bcrypt
+import datetime
+import pytz
+from apscheduler.schedulers.background import BackgroundScheduler
 
-
-from firebase import check_user, authenticate_user, change_password, get_username_by_user_id, write_attendance, get_attendance_by_id
+from firebase import check_user, authenticate_user, change_password, get_username_by_user_id, write_attendance, get_attendance_by_id, get_absent_user, mark_absent
 
 app = Flask(__name__)
 
@@ -107,6 +109,23 @@ def predict(dataframe):
 @app.route('/process-image', methods=['POST'])
 def classify():
     try:
+
+        # Ambil waktu saat ini di zona waktu Jakarta
+        jakarta_tz = pytz.timezone("Asia/Jakarta")
+        current_time = datetime.datetime.now(jakarta_tz)
+        current_hour = current_time.hour
+        current_day = current_time.strftime('%A')  # Mengambil nama hari dalam bahasa Inggris
+        
+        # Tentukan jam dan hari yang diperbolehkan
+        allowed_days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]  # Misalnya hanya Senin-Jumat
+        allowed_hours = range(7, 9)  # Misalnya hanya dari jam 08:00 - 17:59 WIB
+
+        if current_day not in allowed_days or current_hour not in allowed_hours:
+            return jsonify({
+                "status": "error",
+                "message": f"Face recognition is only allowed on weekdays from 08:00 to 17:59 WIB. Current time: {current_time.strftime('%Y-%m-%d %H:%M:%S')}"
+            }), 403
+
         # Get image from request
         img_file = request.files['image']
         user_id = request.form['user_id']
@@ -213,6 +232,22 @@ def get_attendance():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500 
+    
+
+def mark_absent_user():
+    try:
+
+        absent_user = get_absent_user()
+
+        for user_id in absent_user:
+            mark_absent(user_id)
+
+    except Exception as e:
+        print(f"Error marking absent users: {str(e)}")
+    
+scheduler = BackgroundScheduler(timezone="Asia/Jakarta")  # Pastikan zona waktu sudah diatur
+scheduler.add_job(mark_absent_user, 'cron', hour=9, minute=5)  # Jalan setiap hari jam 23:59 WIB
+scheduler.start()
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

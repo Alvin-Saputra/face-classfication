@@ -3,6 +3,8 @@ from firebase_admin import credentials, firestore
 import bcrypt
 import os
 import json
+import datetime
+import pytz
 
 # Ambil JSON dari environment variable
 firebase_creds_json = os.getenv('FIREBASE_CREDENTIALS')
@@ -118,3 +120,30 @@ def get_attendance_by_id(user_id):
 
     except Exception as e:
         return {'status': 'error', 'message': str(e)}
+    
+
+def get_absent_user():
+   JAKARTA_TZ = pytz.timezone('Asia/Jakarta')
+
+
+   users_ref = db.collection("users").get()
+   all_users = [doc.to_dict().get("user_id") for doc in users_ref]
+
+   now = datetime.datetime.now(JAKARTA_TZ)  # Waktu saat ini dalam WIB
+   today = now.replace(hour=0, minute=0, second=0, microsecond=0)
+   
+   attendance_ref = db.collection("attendance")\
+            .where("created_at", ">=", today)\
+            .get()
+   
+   present_users = [doc.to_dict().get("user_id") for doc in attendance_ref]
+   absent_users = [user_id for user_id in all_users if user_id not in present_users]
+
+   return absent_users
+
+def mark_absent(user_id):
+    db.collection("attendance").add({
+                "user_id": user_id,
+                "created_at": firestore.SERVER_TIMESTAMP,
+                "status": "absent"
+            })
