@@ -118,20 +118,20 @@ def classify():
     try:
 
         # Ambil waktu saat ini di zona waktu Jakarta
-        # jakarta_tz = pytz.timezone("Asia/Jakarta")
-        # current_time = datetime.datetime.now(jakarta_tz)
-        # current_hour = current_time.hour
-        # current_day = current_time.strftime('%A')  # Mengambil nama hari dalam bahasa Inggris
+        jakarta_tz = pytz.timezone("Asia/Jakarta")
+        current_time = datetime.datetime.now(jakarta_tz)
+        current_hour = current_time.hour
+        current_day = current_time.strftime('%A')  # Mengambil nama hari dalam bahasa Inggris
         
-        # # Tentukan jam dan hari yang diperbolehkan
-        # allowed_days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]  # Misalnya hanya Senin-Jumat
-        # allowed_hours = range(7, 9)  # Misalnya hanya dari jam 08:00 - 17:59 WIB
+        # Tentukan jam dan hari yang diperbolehkan
+        allowed_days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]  # Misalnya hanya Senin-Jumat
+        allowed_hours = range(7, 9)  # Misalnya hanya dari jam 08:00 - 17:59 WIB
 
-        # if current_day not in allowed_days or current_hour not in allowed_hours:
-        #     return jsonify({
-        #         "status": "error",
-        #         "message": f"Face recognition is only allowed on weekdays from 08:00 to 17:59 WIB. Current time: {current_time.strftime('%Y-%m-%d %H:%M:%S')}"
-        #     }), 403
+        if current_day not in allowed_days or current_hour not in allowed_hours:
+            return jsonify({
+                "status": "error",
+                "message": f"Face recognition is only allowed on weekdays from 08:00 to 17:59 WIB. Current time: {current_time.strftime('%Y-%m-%d %H:%M:%S')}"
+            }), 403
 
         # Get image from request
         img_file = request.files['image']
