@@ -253,7 +253,7 @@ def mark_absent_user():
         print(f"Error marking absent users: {str(e)}")
     
 scheduler = BackgroundScheduler(timezone="Asia/Jakarta")  # Pastikan zona waktu sudah diatur
-scheduler.add_job(mark_absent_user, 'cron', hour=13, minute=50)  # Jalan setiap hari jam 23:59 WIB
+scheduler.add_job(mark_absent_user, 'cron', hour=14, minute=5)  # Jalan setiap hari jam 23:59 WIB
 scheduler.start()
 
 if __name__ == '__main__':
