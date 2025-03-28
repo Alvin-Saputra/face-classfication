@@ -15,6 +15,8 @@ from firebase import check_user, authenticate_user, change_password, get_usernam
 
 app = Flask(__name__)
 
+
+
 def detect_face(img):
     # Load Haar Cascades
     face_classifier = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
@@ -105,6 +107,11 @@ def predict(dataframe):
     
     # Optionally, return the prediction
     return converted_prediction
+
+
+@app.route('/health')
+def health():
+    return {"status": "ok"}, 200
 
 @app.route('/process-image', methods=['POST'])
 def classify():
