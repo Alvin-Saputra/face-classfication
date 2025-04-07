@@ -73,11 +73,11 @@ def change_password(current_password, new_password, user_id):
         if not bcrypt.checkpw(current_password.encode('utf-8'), stored_password.encode('utf-8')):
             return {'status': 'error', 'message': 'Old Password is incorrect'}
         
-         # Hash password baru
-        hashed_new_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-
         if current_password == new_password:
             return {'status': 'error', 'message': 'Try a different new password'}
+        
+         # Hash password baru
+        hashed_new_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
         # Dapatkan ID dokumen
         doc_id = user_ref[0].id  
@@ -116,7 +116,8 @@ def get_attendance_by_id(user_id):
         for doc in user_ref:
             attendance_list.append(doc.to_dict())
 
-        return {'status': 'success', 'message': 'Successfully Fetch Attendance History', 'attendance_data': attendance_list}
+        return {'status': 'success', 'message': 'Successfully Fetch Attendance History', 'attendance_data': 
+                attendance_list}
 
     except Exception as e:
         return {'status': 'error', 'message': str(e)}
@@ -124,7 +125,6 @@ def get_attendance_by_id(user_id):
 
 def get_absent_user():
    JAKARTA_TZ = pytz.timezone('Asia/Jakarta')
-
 
    users_ref = db.collection("users").get()
    all_users = [doc.to_dict().get("user_id") for doc in users_ref]

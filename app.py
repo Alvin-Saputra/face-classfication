@@ -15,8 +15,6 @@ from firebase import check_user, authenticate_user, change_password, get_usernam
 
 app = Flask(__name__)
 
-
-
 def detect_face(img):
     # Load Haar Cascades
     face_classifier = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
@@ -125,12 +123,12 @@ def classify():
         
         # Tentukan jam dan hari yang diperbolehkan
         allowed_days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]  # Misalnya hanya Senin-Jumat
-        allowed_hours = range(7, 9)  # Misalnya hanya dari jam 08:00 - 17:59 WIB
+        allowed_hours = range(7, 16)  # Misalnya hanya dari jam 08:00 - 17:59 WIB
 
         if current_day not in allowed_days or current_hour not in allowed_hours:
             return jsonify({
                 "status": "error",
-                "message": f"Face recognition is only allowed on weekdays from 08:00 to 17:59 WIB. Current time: {current_time.strftime('%Y-%m-%d %H:%M:%S')}"
+                "message": f"Face recognition is only allowed on weekdays from 07:00 to 09:00 WIB. Current time: {current_time.strftime('%Y-%m-%d %H:%M:%S')}"
             }), 403
 
         # Get image from request
@@ -243,7 +241,6 @@ def get_attendance():
 
 def mark_absent_user():
     try:
-
         absent_user = get_absent_user()
 
         for user_id in absent_user:
@@ -252,8 +249,8 @@ def mark_absent_user():
     except Exception as e:
         print(f"Error marking absent users: {str(e)}")
     
-scheduler = BackgroundScheduler(timezone="Asia/Jakarta")  # Pastikan zona waktu sudah diatur
-scheduler.add_job(mark_absent_user, 'cron', hour=9, minute=1)  # Jalan setiap hari jam 23:59 WIB
+scheduler = BackgroundScheduler(timezone="Asia/Jakarta") 
+scheduler.add_job(mark_absent_user, 'cron', hour=9, minute=1)  
 scheduler.start()
 
 if __name__ == '__main__':
