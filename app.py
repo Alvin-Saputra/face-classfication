@@ -128,7 +128,7 @@ def classify():
         if current_day not in allowed_days or current_hour not in allowed_hours:
             return jsonify({
                 "status": "error",
-                "message": f"Face recognition is only allowed on weekdays from 07:00 to 09:00 WIB. Current time: {current_time.strftime('%Y-%m-%d %H:%M:%S')}"
+                "message": f"Face recognition is only allowed on weekdays from 07:00 to 16:00 WIB. Current time: {current_time.strftime('%Y-%m-%d %H:%M:%S')}"
             }), 403
 
         # Get image from request
