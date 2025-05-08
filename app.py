@@ -128,7 +128,7 @@ def classify():
         
         # Tentukan jam dan hari yang diperbolehkan
         allowed_days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]  # Misalnya hanya Senin-Jumat
-        allowed_hours = range(7, 18)  # Misalnya hanya dari jam 08:00 - 17:59 WIB
+        allowed_hours = range(7, 24)  # Misalnya hanya dari jam 08:00 - 17:59 WIB
 
         if current_day not in allowed_days or current_hour not in allowed_hours:
             return jsonify({
@@ -151,7 +151,10 @@ def classify():
         # faces = detect_face(img)
         
         if dataframe is False:
-            return jsonify({'error': 'No face detected in the image'}), 400
+            return jsonify({
+                    'status': 'error',
+                    'message': 'No face detected in the image'
+                }), 200
         
         else:
             prediction = predict(dataframe)
@@ -162,18 +165,18 @@ def classify():
                     return jsonify({
                         'status': 'success',
                         'prediction': prediction.tolist()[0],
-                        'attendance': attendance['message']
+                        'message': attendance['message']
                     }), 200
                 else:
                     return jsonify({
                         'status': 'error',
                         'message': 'Attendance could not be recorded'
-                    }), 400
+                    }), 200
             else:
                 return jsonify({
                     'status': 'error',
                     'message': 'Face does not match with user'
-                }), 400
+                }), 200
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
