@@ -41,15 +41,15 @@ def detect_face(img):
     return cropped_faces
 
 def extract_glcm_features(image):
-    # Quantize image to reduce intensity levels
+    # Kuantisasi gambar untuk mengurangi level intensitas
     levels = 8
     image_quantized = (image // (256 // levels)).astype('uint8')
 
-    # Define distances and angles
-    distances = [1]
+    # Definisikan jarak dan sudut
+    distances = [1, 2]
     angles = [0, np.pi/4, np.pi/2, 3*np.pi/4]  # 0°, 45°, 90°, 135°
 
-    # Calculate GLCM
+    # Hitung GLCM
     glcm = graycomatrix(image_quantized, 
                        distances=distances,
                        angles=angles,
@@ -57,14 +57,13 @@ def extract_glcm_features(image):
                        symmetric=True,
                        normed=True)
 
-    # Extract GLCM properties
-    properties = ['dissimilarity', 'homogeneity', 'ASM', 'energy', 'correlation', 'mean', 'variance', 'std', 'entropy']
+    # Ekstrak properti GLCM
+    properties = ['homogeneity', 'energy', 'correlation']
     features = []
 
-    # Calculate average properties for all angles
     for prop in properties:
         feature = graycoprops(glcm, prop)
-        features.extend(feature.flatten())
+        features.extend(feature.flatten())  
 
     return np.array(features)
 
@@ -85,19 +84,25 @@ def process_image(img):
             glcm_features = extract_glcm_features(resized_face)
             features_list.append(glcm_features)
     
-    columns = [f'feature_{i}' for i in range(len(features_list[0]))]
+    # columns = [f'feature_{i}' for i in range(len(features_list[0]))]
+    _, refs_cols, _ = joblib.load("GLCM_SVM_Face_Classification_Model.pkl")
+    columns = refs_cols
     return pd.DataFrame(features_list, columns=columns)
 
 
 def predict(dataframe):
     df = dataframe
 
-    model, refs_cols, target = joblib.load("GLCM_SVM_Model.pkl")
-    label_encoder = joblib.load("label_encoder.pkl")
+    model, refs_cols, target = joblib.load("GLCM_SVM_Face_Classification_Model.pkl")
+    label_encoder = joblib.load("model_label_encoder.pkl")
+    standard_scaler = joblib.load("standard_scaler.pkl")
 
     X_new = df[refs_cols]
 
-    prediction = model.predict(X_new)
+    X_scaled = standard_scaler.transform(X_new)
+
+    prediction = model.predict(X_scaled)
+
     converted_prediction = label_encoder.inverse_transform(prediction)
     
     # Melakukan prediksi
@@ -123,7 +128,7 @@ def classify():
         
         # Tentukan jam dan hari yang diperbolehkan
         allowed_days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]  # Misalnya hanya Senin-Jumat
-        allowed_hours = range(7, 16)  # Misalnya hanya dari jam 08:00 - 17:59 WIB
+        allowed_hours = range(7, 17)  # Misalnya hanya dari jam 08:00 - 17:59 WIB
 
         if current_day not in allowed_days or current_hour not in allowed_hours:
             return jsonify({
