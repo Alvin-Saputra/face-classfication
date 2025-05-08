@@ -73,16 +73,21 @@ def process_image(img):
     # Detect faces
     faces = detect_face(img)
     
-    if faces is None:
+    if faces is None or len(faces) == 0:
         return False
-    else:
-        for face in faces:
-            # Resize face to 128x128 for consistency
-            resized_face = cv2.resize(face, (128, 128))
+    
+    resized_face = cv2.resize(faces[0], (128, 128))
+    glcm_features = extract_glcm_features(resized_face)
+    features_list.append(glcm_features)
+
+    # else:
+    #     for face in faces:
+    #         # Resize face to 128x128 for consistency
+    #         resized_face = cv2.resize(face, (128, 128))
             
-            # Extract GLCM features
-            glcm_features = extract_glcm_features(resized_face)
-            features_list.append(glcm_features)
+    #         # Extract GLCM features
+    #         glcm_features = extract_glcm_features(resized_face)
+    #         features_list.append(glcm_features)
     
     # columns = [f'feature_{i}' for i in range(len(features_list[0]))]
     _, refs_cols, _ = joblib.load("GLCM_SVM_Face_Classification_Model.pkl")
