@@ -227,9 +227,9 @@ def update_password():
         update_password_result = change_password(current_password, new_password, user_id)
 
         if update_password_result['status'] == 'error':
-            return jsonify({"error": update_password_result['message']}), 403
+            return jsonify({'status': 'error',
+                            "message": update_password_result['message']}), 200
         
-
         return jsonify(update_password_result), 200
 
     except Exception as e:
