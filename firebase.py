@@ -33,6 +33,11 @@ def check_user(username):
 
 def get_username_by_user_id(user_id):
     user_ref = db.collection("users").where("user_id", "==", user_id).get()
+   
+
+    if not user_ref:  # Jika tidak ditemukan
+        return None
+    
     user_doc = user_ref[0].to_dict()
     username = user_doc.get('username')
 
@@ -71,7 +76,7 @@ def change_password(current_password, new_password, user_id):
 
         # Verifikasi password
         if not bcrypt.checkpw(current_password.encode('utf-8'), stored_password.encode('utf-8')):
-            return {'status': 'error', 'message': 'Old Password is incorrect'}
+            return {'status': 'error', 'message': 'Current Password is incorrect'}
         
         if current_password == new_password:
             return {'status': 'error', 'message': 'Try a different new password'}
@@ -112,7 +117,12 @@ def get_attendance_by_id(user_id):
     try:
         # Ambil data pengguna
         user_ref = db.collection("attendance").where("user_id", "==", user_id).get()
+
+        if not user_ref:  
+            return {'status': 'error', 'message': 'User not found'}
+    
         attendance_list = []
+        
         for doc in user_ref:
             attendance_list.append(doc.to_dict())
 

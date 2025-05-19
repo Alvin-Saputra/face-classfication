@@ -133,7 +133,7 @@ def classify():
         
         # Tentukan jam dan hari yang diperbolehkan
         allowed_days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]  # Misalnya hanya Senin-Jumat
-        allowed_hours = range(7, 24)  # Misalnya hanya dari jam 08:00 - 17:59 WIB
+        allowed_hours = range(7, 12)  # Misalnya hanya dari jam 08:00 - 17:59 WIB
 
         if current_day not in allowed_days or current_hour not in allowed_hours:
             return jsonify({
@@ -146,10 +146,17 @@ def classify():
         user_id = request.form['user_id']
 
         if not user_id or not img_file:
-            return jsonify({"error": "image and user_id are required"}), 400
+            return jsonify({ "status": "error",
+                            "message": "image and user_id are required"}), 400
         # Convert to OpenCV format
         img = cv2.imdecode(np.frombuffer(img_file.read(), np.uint8), cv2.IMREAD_COLOR)
 
+        if img is None:
+            return jsonify({
+                "status": "error",
+                "message": "The uploaded file is not a valid image format (e.g. JPEG, PNG, etc)."
+            }), 400
+        
         dataframe = process_image(img)
         
         # Detect faces
@@ -164,7 +171,14 @@ def classify():
         else:
             prediction = predict(dataframe)
 
-            if(prediction.tolist()[0] == get_username_by_user_id(user_id)):
+            expected_username = get_username_by_user_id(user_id)
+            if expected_username is None:
+                return jsonify({
+                    'status': 'error',
+                    'message': 'User ID not found in database'
+                }), 400
+
+            if(prediction.tolist()[0] == expected_username):
                 attendance = write_attendance(user_id)
                 if attendance['status'] == 'success':
                     return jsonify({
