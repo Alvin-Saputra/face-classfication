@@ -71,12 +71,14 @@ def process_image(img):
     features_list = []
     
     # Detect faces
-    faces = detect_face(img)
+    # faces = detect_face(img)
     
-    if faces is None or len(faces) == 0:
-        return False
+    # if faces is None or len(faces) == 0:
+    #     return False
+
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     
-    resized_face = cv2.resize(faces[0], (128, 128))
+    resized_face = cv2.resize(gray, (128, 128))
     glcm_features = extract_glcm_features(resized_face)
     features_list.append(glcm_features)
 
