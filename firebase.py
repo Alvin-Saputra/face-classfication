@@ -7,18 +7,18 @@ import datetime
 import pytz
 
 # Ambil JSON dari environment variable
-firebase_creds_json = os.getenv('FIREBASE_CREDENTIALS')
+# firebase_creds_json = os.getenv('FIREBASE_CREDENTIALS')
 
-if firebase_creds_json:
-    firebase_creds_dict = json.loads(firebase_creds_json)  # Konversi JSON string menjadi dictionary
-    cred = credentials.Certificate(firebase_creds_dict)  # Gunakan dictionary langsung
-    firebase_admin.initialize_app(cred)
-else:
-    raise ValueError("FIREBASE_CREDENTIALS environment variable is not set")
+# if firebase_creds_json:
+#     firebase_creds_dict = json.loads(firebase_creds_json)  # Konversi JSON string menjadi dictionary
+#     cred = credentials.Certificate(firebase_creds_dict)  # Gunakan dictionary langsung
+#     firebase_admin.initialize_app(cred)
+# else:
+#     raise ValueError("FIREBASE_CREDENTIALS environment variable is not set")
 
 
-# cred = credentials.Certificate('./credentials.json')
-# firebase_admin.initialize_app(cred)
+cred = credentials.Certificate('./credentials.json')
+firebase_admin.initialize_app(cred)
 
 # Mendapatkan referensi ke Firestore
 db = firestore.client()
