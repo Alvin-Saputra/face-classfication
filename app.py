@@ -134,7 +134,7 @@ def classify():
         current_day = current_time.strftime('%A')  # Mengambil nama hari dalam bahasa Inggris
         
         # Tentukan jam dan hari yang diperbolehkan
-        allowed_days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]  # Misalnya hanya Senin-Jumat
+        allowed_days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]  # Misalnya hanya Senin-Jumat
         allowed_hours = range(7, 24)  # Misalnya hanya dari jam 08:00 - 17:59 WIB
 
         if current_day not in allowed_days or current_hour not in allowed_hours:
