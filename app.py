@@ -26,7 +26,7 @@ def detect_face(img):
         gray = img
 
     # Detect faces
-    faces = face_classifier.detectMultiScale(gray, 1.3, 5)
+    faces = face_classifier.detectMultiScale(gray, 1.3, 3)
 
     # Check if no faces detected
     if len(faces) == 0:
